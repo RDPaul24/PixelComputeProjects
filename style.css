@@ -60,6 +60,10 @@ h1 {
     background-color: #ffffff;
 }
 
+.red-note {
+    background-color: #ff0000;
+}
+
 /* Delete button on each note */
 .delete-button {
     position: absolute;
