@@ -79,6 +79,10 @@ h1 {
     padding: 2px 4px;
 }
 
+.delete-button:hover {
+    transform: scale(3);
+}
+
 /* Input area for notes */
 .add-note-section {
     width: 180px;
