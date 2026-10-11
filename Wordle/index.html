@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Choosing the title and the font style -->
+    <title>Wordle Clone - v1.2</title>
+    
+    <!-- linking to styles, need to check if paths are fine for production -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-color: #f3f4f6;"> <!-- adding background style -->
 
+    <div class="game-container" style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <!-- header section -->
+        <header style="text-align: center; margin-bottom: 20px;">
+            <h1 style="font-family: sans-serif; font-weight: bold;">Wordle Game</h1>
+            <p style="color: #666; font-size: 14px;">Try to guess the word in 6 tries.</p>
+        </header>
+
+        <!-- The main grid container. The js will use div ID -->
+        <div id="gameBoard" class="board-grid"></div>
+
+        <!-- User input controls -->
+        <div class="input-section" style="margin-top: 30px; display: flex; justify-content: center; gap: 10px;">
+            <input
+                type="text"
+                id="guessInput"
+                maxlength="5"
+                placeholder="Type 5 letters..."
+                autocomplete="off"
+                autofocus
+            >
+          <!--- Submit button --->
+            <button id="submitButton" class="btn-submit">Submit Guess</button>
+        </div>
+
+        <!-- this is message display for errors / wins -->
+        <div style="text-align: center; margin-top: 15px;">
+            <p id="message" style="font-weight: 500; min-height: 24px;"></p>
+        </div>
+        
+    </div>
+
+    <!-- Bringing the list of words in the file to use for our application -->
+    <script src="word_list.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
