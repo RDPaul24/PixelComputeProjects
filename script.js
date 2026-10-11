@@ -1,56 +1,50 @@
-
-const noteInput = document.querySelector("#noteInput");
+//Taking the input, adding button features and section features
+//I took small variables to ensure tenacious process doesnt happen
+const input = document.querySelector("#noteInput");
 const addButton = document.querySelector("#addButton");
-const notesSection = document.querySelector("#notesSection");
-
+const section = document.querySelector("#notesSection");
 let noteCount = 0;
 
-// Function to add a new note
-function addNote() {
-    let noteText = noteInput.value.trim();
-
-    // Do not add an empty note
-    if (noteText === "") {
+//To add a new note
+let addNote = () => {
+    let text = input.value.trim();
+    //Adding only if text present else not
+    if (text === "") {
         return;
     }
-
-    // Create a new note
+    //Creating a new note
     let newNote = document.createElement("div");
     newNote.classList.add("note");
-
-    // Alternate between blue and white
-    if (noteCount % 2 === 0) {
+    
+    //Changing between blue, white and red to randomise
+    if (noteCount % 3 === 0) {
         newNote.classList.add("blue-note");
-    } else {
+    } else if (noteCount % 2 === 0){
         newNote.classList.add("white-note");
+    } else {
+        newNote.classList.add("red-note");
     }
+    
+    //Adding the text content
+    newNote.textContent = text;
+    //Creating the delete button
+    let deletingButton = document.createElement("button");
+    deletingButton.textContent = "X";
+    deletingButton.classList.add("delete-button");
 
-    // Add the note text
-    newNote.textContent = noteText;
+    //Deleting the note when the button is clicked
+    deletingButton.addEventListener("click", function() { newNote.remove(); });
 
-    // Create the delete button
-    let deleteButton = document.createElement("button");
-    deleteButton.textContent = "X";
-    deleteButton.classList.add("delete-button");
-
-    // Delete the note when X is clicked
-    deleteButton.addEventListener("click", function() {
-        newNote.remove();
-    });
-
-    // Add the delete button inside the note
-    newNote.appendChild(deleteButton);
-
-    // Display the note on the dashboard
-    notesSection.appendChild(newNote);
-
-    // Increase the count for the next note
+    //Adding the delete button inside the node
+    newNote.appendChild(deletingButton);
+    //Display node in dashboard
+    section.appendChild(newNote);
+    //Increase count for the next node
     noteCount++;
-
-    // Clear the input after adding the note
-    noteInput.value = "";
+    //Clearing input after adding the node
+    input.value = "";
 }
 
-// Run the function when the plus button is clicked
+//Running the function when the plus button is pressed
 addButton.addEventListener("click", addNote);
 
