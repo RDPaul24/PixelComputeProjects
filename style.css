@@ -3,6 +3,7 @@
     box-sizing: border-box;
 }
 
+/* Body */
 body {
     font-family: Arial, sans-serif;
     background-color: white;
@@ -11,7 +12,7 @@ body {
     display: flex;
     justify-content: center;
 }
-
+/* Notes box */
 .notes-container {
     background-color: #f1f1f1;
     width: 100%;
@@ -31,7 +32,7 @@ h1 {
     margin-bottom: 25px;
 }
 
-/* Section where notes are displayed */
+/* Displaying notes */
 .notes-section {
     display: flex;
     flex-wrap: wrap;
@@ -51,7 +52,7 @@ h1 {
     font-size: 14px;
 }
 
-/* Alternate note colors */
+/* Alternating note colors between blue, red and white */
 .blue-note {
     background-color: #d1e1ff;
 }
@@ -64,7 +65,7 @@ h1 {
     background-color: #ffcccc;
 }
 
-/* Delete button on each note */
+/* Delete button */
 .delete-button {
     position: absolute;
     top: 5px;
@@ -78,7 +79,7 @@ h1 {
     padding: 2px 4px;
 }
 
-/* Input area for writing a note */
+/* Input area for notes */
 .add-note-section {
     width: 180px;
     min-height: 85px;
@@ -89,7 +90,7 @@ h1 {
     position: relative;
     box-shadow: 0 2px 5px #ddd;
 }
-
+/* Text */
 textarea {
     width: 100%;
     height: 55px;
@@ -114,20 +115,5 @@ textarea {
 }
 
 #addButton:hover {
-    transform: scale(1.2);
-}
-
-/* Adjust the layout for smaller screens */
-@media (max-width: 500px) {
-    body {
-        padding: 10px;
-    }
-
-    .notes-container {
-        padding: 15px;
-    }
-
-    .note {
-        width: 100%;
-    }
+    transform: scale(3);
 }
