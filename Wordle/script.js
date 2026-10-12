@@ -62,7 +62,7 @@ function checkGuess() {
         letterCount[letter]++;
     }
 
-    // First, mark letters in the correct position
+    // Marking the letters which are in the correct position
     for (let i = 0; i < 5; i++) {
         let currentCell = cells[currentRow * 5 + i];
 
@@ -72,7 +72,7 @@ function checkGuess() {
         }
     }
 
-    // Next, mark letters that exist in the answer but are misplaced
+    // Marking the letters that exist in the answer but are misplaced
     for (let i = 0; i < 5; i++) {
         let currentCell = cells[currentRow * 5 + i];
         let letter = userGuess[i];
