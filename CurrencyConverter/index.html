@@ -5,4 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Currency Converter</title> 
     <!-- Title declaring -->
-    
+
+    <!-- Using google font lato -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+     <main class="page">
+        <section class="converter-card">
+            <h1>Currency converter</h1>
+            <form id="converter-form">
+                <label for="amount">Enter amount</label>
+              <!-- taking input for the amount to be converted -->
+                <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    placeholder="100"
+                    value="100"
+                    min="0"
+                    step="any"
+                    required
+                >
+              <!-- declared the object type of the amount for the js to find out-->
+                <div class="currency-row">
+                    <select id="from-currency" aria-label="Convert from">
+                        <option value="USD">🇺🇸 USD - United States Dollar</option>
+                    </select>
+                  <!-- giving a default option for usd -->
+                    <span class="to-label">TO</span>
+                    <select id="to-currency" aria-label="Convert to">
+                        <option value="INR">🇮🇳 INR - Indian Rupee</option>
+                    </select>
+                  <!-- giving default option as inr-->
+                </div>
+                <button type="submit" id="convert-button">
+                    Convert
+                </button>
+            </form>
+            <p id="result" class="result" role="status" aria-live="polite"></p>
+            <p id="error" class="error" role="alert" hidden></p>
+        </section>
+    </main>
+  </body>
+</html>
