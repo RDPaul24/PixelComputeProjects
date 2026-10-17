@@ -1,4 +1,4 @@
-const API_KEY = "YOUR_API_KEY";
+const API_KEY = "3b27b6bc93d2ef34411543fd";
 
 //api extraction
 const COUNTRIES_URL =
