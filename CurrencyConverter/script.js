@@ -1,155 +1,202 @@
-/* Making the box */
-* {
-    box-sizing: border-box;
+const API_KEY = "YOUR_API_KEY";
+
+//api extraction
+const COUNTRIES_URL =
+    "https://restcountries.com/v3.1/all?fields=name,flags,currencies,cca2";
+
+const form = document.querySelector("#converter-form");
+const input = document.querySelector("#amount");
+const fromSelect = document.querySelector("#from-currency");
+const toSelect = document.querySelector("#to-currency");
+const convertButton = document.querySelector("#convert-button");
+const resultMessage = document.querySelector("#result");
+const errorMessage = document.querySelector("#error");
+
+let currencyList = [];
+
+const showError = (message) => {
+    errorMessage.textContent = message;
+    errorMessage.hidden = false;
+    resultMessage.textContent = "";
 }
 
-/* code for the body */
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: "Lato", sans-serif;
-    background-color: #f4f4f4;
-    color: #252525;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+const clearMessages = () => {
+    errorMessage.textContent = "";
+    errorMessage.hidden = true;
+    resultMessage.textContent = "";
 }
 
-/* Centering the page */
-.page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 32px 16px;
+const getCountryFlag = (country) => {
+    const code = country.cca2;
+
+    if (!code || code.length !== 2) {
+        return country.flags?.emoji || "🏳️";
+    }
+
+    return String.fromCodePoint(
+        ...[...code.toUpperCase()].map(
+            letter => 127397 + letter.charCodeAt(0)
+        )
+    );
 }
 
-/* Yellow box configuration */
-.converter-card {
-    width: min(100%, 650px);
-    min-height: 390px;
-    padding: 48px 32px;
+async function loadCurrencies() {
+    try {
+        const response = await fetch(COUNTRIES_URL);
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+        if (!response.ok) {
+            throw new Error("Could not load country information.");
+        }
 
-    text-align: center;
-    background-color: #F8D800;
-    border-radius: 12px;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+        const countries = await response.json();
+        const uniqueCurrencies = new Map();
+
+        countries.forEach(country => {
+            if (!country.currencies) {
+                return;
+            }
+
+            const flag = getCountryFlag(country);
+
+            Object.entries(country.currencies).forEach(
+                ([code, currency]) => {
+                    if (!uniqueCurrencies.has(code)) {
+                        uniqueCurrencies.set(code, {
+                            code: code,
+                            name: currency.name || code,
+                            flag: flag
+                        });
+                    }
+                }
+            );
+        });
+
+        currencyList = [...uniqueCurrencies.values()].sort(
+            (a, b) => a.code.localeCompare(b.code)
+        );
+
+        populateDropdown(fromSelect, "USD");
+        populateDropdown(toSelect, "INR");
+
+    } catch (error) {
+        console.error(error);
+
+        showError(
+            "Country list could not be loaded. You can still use the default currencies."
+        );
+    }
 }
 
-/* Heading configuration */
-h1 {
-    margin: 0 0 30px;
-    font-size: clamp(1.7rem, 5vw, 2.25rem);
-    font-weight: 900;
+const populateDropdown = (selectElement, defaultCode) => {
+    if (currencyList.length === 0) {
+        return;
+    }
+
+    selectElement.replaceChildren();
+
+    currencyList.forEach(currency => {
+        const option = document.createElement("option");
+        option.value = currency.code;
+        option.textContent =
+            `${currency.flag} ${currency.code} - ${currency.name}`;
+        selectElement.appendChild(option);
+    });
+
+    if (
+        ![...selectElement.options].some(
+            option => option.value === defaultCode
+        )
+    ) {
+        const fallback = document.createElement("option");
+        fallback.value = defaultCode;
+        fallback.textContent = defaultCode;
+        selectElement.appendChild(fallback);
+    }
+
+    selectElement.value = defaultCode;
 }
 
-/* Layout configuration */
-form {
-    width: min(100%, 340px);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+const formatNumber = (number) => {
+    return new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(number);
 }
 
-label {
-    font-size: 0.95rem;
+async function convertCurrency(event) {
+    event.preventDefault();
+
+    clearMessages();
+
+    const amount = Number(input.value);
+    const fromCurrency = fromSelect.value;
+    const toCurrency = toSelect.value;
+
+    if (
+        input.value.trim() === "" ||
+        !Number.isFinite(amount) ||
+        amount < 0
+    ) {
+        showError("Please enter a valid amount of 0 or more.");
+        input.focus();
+        return;
+    }
+
+    if (API_KEY === "YOUR_API_KEY") {
+        showError(
+            "Add your ExchangeRate-API key in script.js before converting."
+        );
+        return;
+    }
+
+    if (fromCurrency === toCurrency) {
+        resultMessage.textContent =
+            `${formatNumber(amount)} ${fromCurrency} = ` +
+            `${formatNumber(amount)} ${toCurrency}`;
+
+        return;
+    }
+
+    convertButton.disabled = true;
+    convertButton.textContent = "Converting...";
+
+    try {
+        const url =
+            `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${encodeURIComponent(fromCurrency)}`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("The exchange-rate service could not be reached.");
+        }
+
+        const data = await response.json();
+        if (data.result !== "success" || !data.conversion_rates) {
+            throw new Error(
+                data["error-type"] || "The API returned an error."
+            );
+        }
+
+        const rate = data.conversion_rates[toCurrency];
+        if (typeof rate !== "number") {
+            throw new Error(`A rate for ${toCurrency} was not available.`);
+        }
+
+        const convertedAmount = amount * rate;
+        resultMessage.textContent =
+            `${formatNumber(amount)} ${fromCurrency} = ` +
+            `${formatNumber(convertedAmount)} ${toCurrency}`;
+
+    } catch (error) {
+        console.error(error);
+        showError("An error occurred, please try again later.");
+
+    } finally {
+        convertButton.disabled = false;
+        convertButton.textContent = "Convert";
+    }
 }
 
-/* code for amount input and currency dropdowns to a list */
-input,
-select {
-    width: 100%;
-    min-width: 0;
-    padding: 11px 12px;
-    font: inherit;
+form.addEventListener("submit", convertCurrency);
 
-    background-color: white;
-    border: 1px solid #d0d0d0;
-    border-radius: 6px;
-
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
-    text-shadow: none;
-}
-
-/* Highlighting input when clicked */
-input:focus,
-select:focus {
-    outline: none;
-    border-color: #555;
-    box-shadow: 0 0 0 2px rgba(85, 85, 85, 0.16);
-}
-
-/* creating two dropdowns */
-.currency-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    gap: 8px;
-    margin: 8px 0;
-}
-
-.currency-row select {
-    padding: 10px 6px;
-    font-size: 0.82rem;
-}
-
-.to-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-/* Convert button configuration */
-button {
-    width: 100%;
-    padding: 12px 16px;
-
-    border: none;
-    border-radius: 6px;
-
-    background-color: #007bff;
-    color: white;
-    font: inherit;
-    font-weight: 700;
-
-    cursor: pointer;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
-
-    transition: background-color 0.2s, transform 0.2s;
-}
-
-button:hover {
-    background-color: #0069d9;
-}
-
-button:active {
-    transform: translateY(1px);
-}
-
-button:disabled {
-    opacity: 0.65;
-    cursor: wait;
-}
-
-/* Conversion result */
-.result {
-    min-height: 1.4em;
-    margin: 16px 0 0;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-/* Error message */
-.error {
-    margin: 10px 0 0;
-    color: #c62828;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-[hidden] {
-    display: none !important;
-}
+loadCurrencies();
