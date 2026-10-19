@@ -1,7 +1,8 @@
 const API_KEY = "3b27b6bc93d2ef34411543fd";
 
 //api extraction
-
+const COUNTRIES_URL =
+    "https://restcountries.com/v3.1/all?fields=name,flags,currencies,cca2";
 
 const form = document.querySelector("#converter-form");
 const input = document.querySelector("#amount");
@@ -40,21 +41,50 @@ const getCountryFlag = (country) => {
 }
 
 async function loadCurrencies() {
-    currencyList = [
-        { code: "AUD", name: "Australian Dollar", flag: "🇦🇺" },
-        { code: "BDT", name: "Bangladeshi Taka", flag: "🇧🇩" },
-        { code: "CAD", name: "Canadian Dollar", flag: "🇨🇦" },
-        { code: "CNY", name: "Chinese Yuan", flag: "🇨🇳" },
-        { code: "EUR", name: "Euro", flag: "🇪🇺" },
-        { code: "GBP", name: "British Pound", flag: "🇬🇧" },
-        { code: "INR", name: "Indian Rupee", flag: "🇮🇳" },
-        { code: "JPY", name: "Japanese Yen", flag: "🇯🇵" },
-        { code: "SGD", name: "Singapore Dollar", flag: "🇸🇬" },
-        { code: "USD", name: "US Dollar", flag: "🇺🇸" }
-    ];
+    try {
+        const response = await fetch(COUNTRIES_URL);
 
-    populateDropdown(fromSelect, "USD");
-    populateDropdown(toSelect, "INR");
+        if (!response.ok) {
+            throw new Error("Could not load country information.");
+        }
+
+        const countries = await response.json();
+        const uniqueCurrencies = new Map();
+
+        countries.forEach(country => {
+            if (!country.currencies) {
+                return;
+            }
+
+            const flag = getCountryFlag(country);
+
+            Object.entries(country.currencies).forEach(
+                ([code, currency]) => {
+                    if (!uniqueCurrencies.has(code)) {
+                        uniqueCurrencies.set(code, {
+                            code: code,
+                            name: currency.name || code,
+                            flag: flag
+                        });
+                    }
+                }
+            );
+        });
+
+        currencyList = [...uniqueCurrencies.values()].sort(
+            (a, b) => a.code.localeCompare(b.code)
+        );
+
+        populateDropdown(fromSelect, "USD");
+        populateDropdown(toSelect, "INR");
+
+    } catch (error) {
+        console.error(error);
+
+        showError(
+            "Country list could not be loaded. You can still use the default currencies."
+        );
+    }
 }
 
 const populateDropdown = (selectElement, defaultCode) => {
