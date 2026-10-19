@@ -52,23 +52,23 @@ async function loadCurrencies() {
         const uniqueCurrencies = new Map();
 
         countries.forEach(country => {
-            if (!country.currencies) {
+            if (!country.currencies || country.currencies.length === 0) {
                 return;
             }
 
-            const flag = getCountryFlag(country);
+            const flag = country.flag || "🏳️";
 
-            Object.entries(country.currencies).forEach(
-                ([code, currency]) => {
-                    if (!uniqueCurrencies.has(code)) {
-                        uniqueCurrencies.set(code, {
-                            code: code,
-                            name: currency.name || code,
-                            flag: flag
-                        });
-                    }
+            country.currencies.forEach(currency => {
+                const code = currency.code;
+
+                if (code && !uniqueCurrencies.has(code)) {
+                    uniqueCurrencies.set(code, {
+                        code: code,
+                        name: currency.name || code,
+                        flag: flag
+                    });
                 }
-            );
+            });
         });
 
         currencyList = [...uniqueCurrencies.values()].sort(
@@ -79,10 +79,10 @@ async function loadCurrencies() {
         populateDropdown(toSelect, "INR");
 
     } catch (error) {
-        console.error(error);
+        console.error("Currency loading error:", error);
 
         showError(
-            "Country list could not be loaded. You can still use the default currencies."
+            "Could not load currencies. Please refresh the page and try again."
         );
     }
 }
