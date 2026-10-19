@@ -1,8 +1,7 @@
 const API_KEY = "3b27b6bc93d2ef34411543fd";
 
 //api extraction
-const COUNTRIES_URL =
-    "https://restcountries.com/v3.1/all?fields=name,flags,currencies,cca2";
+const COUNTRIES_URL = "https://countries.dev/countries";
 
 const form = document.querySelector("#converter-form");
 const input = document.querySelector("#amount");
